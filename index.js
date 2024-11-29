@@ -18,18 +18,19 @@ async function sendMessage() {
     try {
         // Send the message to the Render server
         const response = await fetch('https://server-luffy.onrender.com', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userMessage }),
-        });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userMessage }),
+});
 
-        if (!response.ok) {
-            throw new Error('Failed to send message');
-        }
+if (!response.ok) {
+    console.error('Error:', await response.text()); // Log server-side error message
+    throw new Error('Failed to fetch response from server');
+}
+const data = await response.json();
 
-        const data = await response.json();
 
         // Display the bot's response
         const botBubble = document.createElement('div');
