@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat App</title>
+    <title>Chat with Luffy</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div>
-        <input type="text" id="user-input" placeholder="Type your message" />
-        <button id="send-btn">Send</button>
+    <header>Chat with Luffy</header>
+    <div class="container">
+        <div class="chat-box" id="chat-box">
+            <p class="bot-reply">Welcome to Luffy's Chat App! How can I assist you?</p>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type your message..." />
+            <button id="send-btn">Send</button>
+        </div>
     </div>
-    <div>
-        <p id="chat-response"></p>
-    </div>
-
-    <!-- Link to your index.js -->
-    <script src="index.js"></script>
+    <script src="index.js" defer></script>
 </body>
 </html>
