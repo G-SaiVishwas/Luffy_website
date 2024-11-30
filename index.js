@@ -1,10 +1,12 @@
-// Replace with your server's deployed URL
-const SERVER_URL = "https://server-luffy.onrender.com/chat";
+// URL of your backend server
+const SERVER_URL = "https://server-luffy.onrender.com/chat"; // Replace with your Render backend URL
 
-// Function to send a message to the server
-async function sendMessage(userMessage) {
+async function sendMessage() {
+    // Get user input from the text field
+    const userMessage = document.getElementById("user-input").value;
+
     try {
-        // Send the user message to the backend
+        // Send a POST request to the backend
         const response = await fetch(SERVER_URL, {
             method: "POST",
             headers: {
@@ -13,44 +15,21 @@ async function sendMessage(userMessage) {
             body: JSON.stringify({ userMessage }),
         });
 
-        // Check if the response is successful
+        // Check if the response is okay
         if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        // Parse the response JSON
+        // Parse the JSON response
         const data = await response.json();
-        return data.reply;
+
+        // Display the response in the chat response area
+        document.getElementById("chat-response").innerText = data.reply;
     } catch (error) {
         console.error("Error:", error);
-        return "Sorry, something went wrong. Please try again later.";
+        alert("Failed to send the message. Please try again.");
     }
 }
 
-// Add an event listener to handle button clicks
-document.getElementById("sendButton").onclick = async () => {
-    // Get the user message from the input field
-    const userMessage = document.getElementById("messageInput").value;
-
-    // Display the user's message in the chat window
-    displayMessage("You", userMessage);
-
-    // Send the message to the backend and get the response
-    const reply = await sendMessage(userMessage);
-
-    // Display the server's reply in the chat window
-    displayMessage("Bot", reply);
-
-    // Clear the input field
-    document.getElementById("messageInput").value = "";
-};
-
-// Function to display messages in the chat window
-function displayMessage(sender, message) {
-    const chatWindow = document.getElementById("chatWindow");
-    const messageElement = document.createElement("div");
-    messageElement.className = "message";
-    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
-    chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to the latest message
-}
+// Attach the sendMessage function to the send button
+document.getElementById("send-btn").onclick = sendMessage;
