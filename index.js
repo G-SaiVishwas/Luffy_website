@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 displayMessage(userMessage, "user-message");
 
                 try {
-                    const response = await fetch("https://your-server-url/chat", {
+                    const response = await fetch("https://server-luffy.onrender.com/chat", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ userMessage }),
