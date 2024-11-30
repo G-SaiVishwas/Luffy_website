@@ -1,4 +1,15 @@
-// Assuming you have a sendMessage function like this:
+// Ensure that the DOM has fully loaded before executing the script
+document.addEventListener('DOMContentLoaded', function () {
+    // Get the button element
+    const sendButton = document.getElementById('sendButton');
+
+    // Ensure the sendButton is found
+    if (sendButton) {
+        sendButton.onclick = sendMessage;
+    } else {
+        console.error('Send button not found');
+    }
+});
 
 async function sendMessage() {
     const userMessage = document.getElementById('userMessage').value;
@@ -30,5 +41,3 @@ async function sendMessage() {
         console.error('Error:', error);
     }
 }
-
-document.getElementById('sendButton').onclick = sendMessage;
