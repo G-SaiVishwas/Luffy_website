@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const userMessageInput = document.getElementById('userMessage');
     const chatOutput = document.getElementById('chatOutput');
 
-    // Ensure sendButton exists and add event listener
-    if (sendButton) {
-        sendButton.addEventListener('click', sendMessage);
-    } else {
-        console.error('Send button not found');
+    if (!sendButton || !userMessageInput || !chatOutput) {
+        console.error('Required DOM elements not found.');
+        return;
     }
+
+    sendButton.addEventListener('click', sendMessage);
 
     async function sendMessage() {
         const userMessage = userMessageInput.value.trim();
@@ -19,6 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         console.log('User input:', userMessage);
+
+        // Append user's message to the chat window
+        const userMessageElement = document.createElement('div');
+        userMessageElement.className = 'user-message';
+        userMessageElement.textContent = userMessage;
+        chatOutput.appendChild(userMessageElement);
+
+        // Clear the input box
+        userMessageInput.value = '';
+
+        // Scroll chat window to the bottom
+        chatOutput.scrollTop = chatOutput.scrollHeight;
 
         try {
             const response = await fetch('https://server-luffy.onrender.com/chat', {
@@ -36,11 +48,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             console.log('Server says:', data.botResponse);
 
-            // Display response from the server
-            chatOutput.innerHTML = data.botResponse;
+            // Append bot's response to the chat window
+            const botMessageElement = document.createElement('div');
+            botMessageElement.className = 'bot-message';
+            botMessageElement.textContent = data.botResponse;
+            chatOutput.appendChild(botMessageElement);
+
+            // Scroll chat window to the bottom
+            chatOutput.scrollTop = chatOutput.scrollHeight;
         } catch (error) {
             console.error('Error:', error);
-            chatOutput.innerHTML = 'An error occurred. Please try again later.';
+
+            // Append error message to the chat window
+            const errorMessageElement = document.createElement('div');
+            errorMessageElement.className = 'bot-message';
+            errorMessageElement.textContent = 'An error occurred. Please try again later.';
+            chatOutput.appendChild(errorMessageElement);
         }
     }
 });
