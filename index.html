@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat with Luffy</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>Chat with Luffy</header>
-    <div class="container">
-        <div class="chat-box" id="chat-box">
-            <p class="bot-reply">Welcome to Luffy's Chat App! How can I assist you?</p>
-        </div>
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Type your message..." />
-            <button id="send-btn">Send</button>
-        </div>
-    </div>
-    <script src="index.js" defer></script>
+    <h1>Welcome to Luffy's Chat App!</h1>
+
+    <textarea id="userMessage" placeholder="Type your message here..."></textarea>
+    <button id="sendButton">Send</button>
+
+    <div id="chatOutput"></div>
+
+    <script src="index.js"></script>
 </body>
 </html>
