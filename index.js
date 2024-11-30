@@ -6,12 +6,14 @@ async function sendMessage() {
 
     try {
         const response = await fetch('https://server-luffy.onrender.com/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userMessage }),
-        });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userMessage }),
+    mode: 'no-cors', // Temporary fix to bypass CORS
+});
+
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
