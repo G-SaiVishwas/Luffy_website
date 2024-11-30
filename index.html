@@ -3,30 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatbot Integration Page</title>
+  <title>Chatbot</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
-    <h1>Chatbot Integration Demo</h1>
+    <h1>Chatbot Demo</h1>
   </header>
-
   <main>
-    <h2>Chat Section</h2>
-    <div class="chat-section" id="chatWindow">
-      <!-- Chat messages will be displayed here -->
+    <div id="chatWindow" style="height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+      <!-- Chat messages will appear here -->
     </div>
-
-    <div class="chat-input">
-      <input type="text" id="userInput" placeholder="Type your message here..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
+    <input type="text" id="userInput" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
   </main>
-
   <footer>
-    <p>Designed with ♥ by AI-Mation Makers</p>
+    <p>Powered by Your Chatbot</p>
   </footer>
-
   <script src="index.js"></script>
 </body>
 </html>
