@@ -17,7 +17,7 @@ async function sendMessage() {
 
     try {
         // Send the message to the Render server
-        const response = await fetch('https://server-luffy.onrender.com', {
+        const response = await fetch('https://server-luffy.onrender.com/chat', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
