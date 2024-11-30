@@ -3,16 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
+    <title>Luffy's Chat App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome to Luffy's Chat App!</h1>
+    <div class="container">
+        <header>
+            <h1>Luffy's Chat App</h1>
+            <p>Chat with Monkey D. Luffy!</p>
+        </header>
 
-    <textarea id="userMessage" placeholder="Type your message here..."></textarea>
-    <button id="sendButton">Send</button>
+        <main>
+            <div id="chatWindow" class="chat-window">
+                <div id="chatOutput" class="chat-output"></div>
+            </div>
+            <textarea id="userMessage" placeholder="Type your message here..." class="message-box"></textarea>
+            <button id="sendButton" class="send-button">Send</button>
+        </main>
 
-    <div id="chatOutput"></div>
+        <footer>
+            <p>© 2024 Luffy Chat App. All Rights Reserved.</p>
+        </footer>
+    </div>
 
     <script src="index.js"></script>
 </body>
