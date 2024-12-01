@@ -3,27 +3,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const userMessageInput = document.getElementById('userMessage');
     const chatOutput = document.getElementById('chatOutput');
     
-    // Retrieve or initialize chat data from local storage
+    // Retrieve or initialize comprehensive chat data from local storage
     let chatData = JSON.parse(localStorage.getItem('chatData')) || {
         sessionId: null,
-        conversationHistory: []
+        fullConversationHistory: [],  // Store ALL conversation history
+        userInfo: {}
     };
+
+    // Check if user info exists, if not, prompt for it
+    if (!chatData.userInfo.name) {
+        const userName = prompt("What's your name? I want to remember you!");
+        if (userName) {
+            chatData.userInfo = { name: userName };
+        }
+    }
 
     if (!sendButton || !userMessageInput || !chatOutput) {
         console.error('Required DOM elements not found.');
         return;
     }
 
-    // Restore previous chat messages if they exist
-    chatData.conversationHistory.forEach(message => {
-        const messageElement = document.createElement('div');
-        messageElement.className = message.sender === 'user' ? 'user-message' : 'bot-message';
-        messageElement.textContent = message.text;
-        chatOutput.appendChild(messageElement);
-    });
+    // Restore entire conversation history
+    function renderFullConversationHistory() {
+        // Clear existing chat output
+        chatOutput.innerHTML = '';
 
-    // Scroll to bottom initially
-    chatOutput.scrollTop = chatOutput.scrollHeight;
+        // Render all previous messages
+        chatData.fullConversationHistory.forEach(message => {
+            const messageElement = document.createElement('div');
+            messageElement.className = message.sender === 'user' ? 'user-message' : 'bot-message';
+            messageElement.textContent = message.text;
+            chatOutput.appendChild(messageElement);
+        });
+
+        // Scroll to bottom
+        chatOutput.scrollTop = chatOutput.scrollHeight;
+    }
+
+    // Initial render of conversation history
+    renderFullConversationHistory();
 
     sendButton.addEventListener('click', sendMessage);
     userMessageInput.addEventListener('keypress', (event) => {
@@ -39,17 +57,27 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Append user's message to the chat window
-        const userMessageElement = document.createElement('div');
-        userMessageElement.className = 'user-message';
-        userMessageElement.textContent = userMessage;
-        chatOutput.appendChild(userMessageElement);
+        // Prepare message with user context
+        const messageWithContext = chatData.userInfo.name 
+            ? `My name is ${chatData.userInfo.name}. ${userMessage}` 
+            : userMessage;
+
+        // Append user's message to the chat window and full history
+        const userMessageEntry = { 
+            sender: 'user', 
+            text: userMessage,
+            timestamp: new Date().toISOString()
+        };
+        chatData.fullConversationHistory.push(userMessageEntry);
+
+        // Update local storage
+        localStorage.setItem('chatData', JSON.stringify(chatData));
+
+        // Render updated history
+        renderFullConversationHistory();
 
         // Clear the input box
         userMessageInput.value = '';
-
-        // Scroll chat window to the bottom
-        chatOutput.scrollTop = chatOutput.scrollHeight;
 
         try {
             const response = await fetch('https://server-luffy.onrender.com/chat', {
@@ -58,9 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ 
-                    userMessage,
+                    userMessage: messageWithContext,
                     sessionId: chatData.sessionId,
-                    conversationHistory: chatData.conversationHistory
+                    conversationHistory: chatData.fullConversationHistory,
+                    userInfo: chatData.userInfo
                 }),
             });
 
@@ -70,31 +99,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             
-            // Update chat data
-            chatData = {
-                sessionId: data.sessionId || chatData.sessionId,
-                conversationHistory: data.conversationHistory
+            // Append bot's response to full history
+            const botMessageEntry = {
+                sender: 'bot',
+                text: data.botResponse,
+                timestamp: new Date().toISOString()
             };
+            chatData.fullConversationHistory.push(botMessageEntry);
 
-            // Save to local storage
+            // Update session and save to local storage
+            chatData.sessionId = data.sessionId || chatData.sessionId;
             localStorage.setItem('chatData', JSON.stringify(chatData));
 
-            // Append bot's response to the chat window
-            const botMessageElement = document.createElement('div');
-            botMessageElement.className = 'bot-message';
-            botMessageElement.textContent = data.botResponse;
-            chatOutput.appendChild(botMessageElement);
-
-            // Scroll chat window to the bottom
-            chatOutput.scrollTop = chatOutput.scrollHeight;
+            // Render updated history
+            renderFullConversationHistory();
 
         } catch (error) {
             console.error('Error:', error);
             // Append error message to the chat window
-            const errorMessageElement = document.createElement('div');
-            errorMessageElement.className = 'bot-message error-message';
-            errorMessageElement.textContent = 'An error occurred. Please try again later.';
-            chatOutput.appendChild(errorMessageElement);
+            const errorMessageEntry = {
+                sender: 'bot',
+                text: 'An error occurred. Please try again later.',
+                timestamp: new Date().toISOString()
+            };
+            chatData.fullConversationHistory.push(errorMessageEntry);
+            localStorage.setItem('chatData', JSON.stringify(chatData));
+            renderFullConversationHistory();
         }
     }
 
@@ -104,33 +134,21 @@ document.addEventListener('DOMContentLoaded', () => {
         clearChatButton.addEventListener('click', clearChat);
     }
 
-    async function clearChat() {
-        // Clear local chat output
-        chatOutput.innerHTML = '';
+    function clearChat() {
+        // Preserve user info
+        const userInfo = chatData.userInfo;
 
-        // Clear local storage
-        localStorage.removeItem('chatData');
-
-        // Reset chat data
+        // Clear conversation history
         chatData = {
             sessionId: null,
-            conversationHistory: []
+            fullConversationHistory: [],
+            userInfo: userInfo
         };
 
-        // Clear session on the server if we have a session ID
-        if (chatData.sessionId) {
-            try {
-                await fetch('https://server-luffy.onrender.com/clear-history', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ sessionId: chatData.sessionId }),
-                });
-                console.log('Chat history cleared');
-            } catch (error) {
-                console.error('Error clearing chat history:', error);
-            }
-        }
+        // Update local storage
+        localStorage.setItem('chatData', JSON.stringify(chatData));
+
+        // Render (now empty) chat
+        renderFullConversationHistory();
     }
 });
