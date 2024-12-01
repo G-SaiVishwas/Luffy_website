@@ -3,13 +3,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const userMessageInput = document.getElementById('userMessage');
     const chatOutput = document.getElementById('chatOutput');
     
-    // Variable to store the session ID
-    let sessionId = null;
+    // Retrieve or initialize chat data from local storage
+    let chatData = JSON.parse(localStorage.getItem('chatData')) || {
+        sessionId: null,
+        conversationHistory: []
+    };
 
     if (!sendButton || !userMessageInput || !chatOutput) {
         console.error('Required DOM elements not found.');
         return;
     }
+
+    // Restore previous chat messages if they exist
+    chatData.conversationHistory.forEach(message => {
+        const messageElement = document.createElement('div');
+        messageElement.className = message.sender === 'user' ? 'user-message' : 'bot-message';
+        messageElement.textContent = message.text;
+        chatOutput.appendChild(messageElement);
+    });
+
+    // Scroll to bottom initially
+    chatOutput.scrollTop = chatOutput.scrollHeight;
 
     sendButton.addEventListener('click', sendMessage);
     userMessageInput.addEventListener('keypress', (event) => {
@@ -24,8 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('No message provided');
             return;
         }
-
-        console.log('User input:', userMessage);
 
         // Append user's message to the chat window
         const userMessageElement = document.createElement('div');
@@ -47,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ 
                     userMessage,
-                    sessionId  // Send the session ID if it exists
+                    sessionId: chatData.sessionId,
+                    conversationHistory: chatData.conversationHistory
                 }),
             });
 
@@ -57,12 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             
-            // Store the session ID for future requests
-            if (data.sessionId) {
-                sessionId = data.sessionId;
-            }
+            // Update chat data
+            chatData = {
+                sessionId: data.sessionId || chatData.sessionId,
+                conversationHistory: data.conversationHistory
+            };
 
-            console.log('Server says:', data.botResponse);
+            // Save to local storage
+            localStorage.setItem('chatData', JSON.stringify(chatData));
 
             // Append bot's response to the chat window
             const botMessageElement = document.createElement('div');
@@ -75,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error:', error);
-
             // Append error message to the chat window
             const errorMessageElement = document.createElement('div');
             errorMessageElement.className = 'bot-message error-message';
@@ -84,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Optional: Add a clear chat button
+    // Clear chat button functionality
     const clearChatButton = document.getElementById('clearChatButton');
     if (clearChatButton) {
         clearChatButton.addEventListener('click', clearChat);
@@ -94,19 +108,25 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear local chat output
         chatOutput.innerHTML = '';
 
+        // Clear local storage
+        localStorage.removeItem('chatData');
+
+        // Reset chat data
+        chatData = {
+            sessionId: null,
+            conversationHistory: []
+        };
+
         // Clear session on the server if we have a session ID
-        if (sessionId) {
+        if (chatData.sessionId) {
             try {
                 await fetch('https://server-luffy.onrender.com/clear-history', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ sessionId }),
+                    body: JSON.stringify({ sessionId: chatData.sessionId }),
                 });
-
-                // Reset session ID
-                sessionId = null;
                 console.log('Chat history cleared');
             } catch (error) {
                 console.error('Error clearing chat history:', error);
