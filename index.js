@@ -73,3 +73,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function parseMarkdown(text) {
+    // Bold: **text** or *text*
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Code: `code`
+    text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+    
+    // Lists and other complex markdown can be added here
+    
+    return text;
+}
+
+function appendMessage(sender, text) {
+    const messageElement = document.createElement("div");
+    messageElement.className = sender === "user" ? "user-message" : "bot-message";
+    
+    // Sanitize first, then parse markdown
+    const sanitizedText = escapeHtml(text);
+    const parsedText = parseMarkdown(sanitizedText);
+    
+    // Use innerHTML to render HTML tags
+    messageElement.innerHTML = parsedText;
+    
+    chatOutput.appendChild(messageElement);
+    scrollToBottom();
+}
