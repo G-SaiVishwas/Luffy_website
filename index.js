@@ -1,56 +1,75 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const sendButton = document.getElementById("sendButton");
-    const userMessageInput = document.getElementById("userMessage");
-    const chatOutput = document.getElementById("chatOutput");
+  const sendButton = document.getElementById("sendButton");
+  const userMessageInput = document.getElementById("userMessage");
+  const chatOutput = document.getElementById("chatOutput");
+  const chatWindow = document.getElementById("chatWindow");
+  let userId = localStorage.getItem("userId");
 
-    let userId = localStorage.getItem("userId");
-    if (!userId) {
-        userId = generateUserId();
-        localStorage.setItem("userId", userId);
+  if (!userId) {
+    userId = generateUserId();
+    localStorage.setItem("userId", userId);
+  }
+
+  function scrollToBottom() {
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const userMessage = userMessageInput.value.trim();
+    if (!userMessage) return;
+
+    const messageData = {
+      userId,
+      userMessage,
+    };
+
+    // Display user's message immediately
+    appendMessage("user", userMessage);
+
+    // Clear the input
+    userMessageInput.value = "";
+
+    // Scroll to bottom
+    scrollToBottom();
+
+    try {
+      const response = await fetch("https://server-luffy.onrender.com/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(messageData),
+      });
+
+      if (!response.ok) throw new Error("Failed to send message");
+
+      const { botResponse } = await response.json();
+      appendMessage("bot", botResponse);
+
+      // Scroll to bottom after bot response
+      scrollToBottom();
+    } catch (error) {
+      appendMessage("bot", "An error occurred. Please try again.");
+      scrollToBottom();
     }
+  }
 
-    async function sendMessage() {
-        const userMessage = userMessageInput.value.trim();
-        if (!userMessage) return;
+  function appendMessage(sender, text) {
+    const messageElement = document.createElement("div");
+    messageElement.className =
+      sender === "user" ? "user-message" : "bot-message";
+    messageElement.textContent = text;
+    chatOutput.appendChild(messageElement);
+  }
 
-        const messageData = {
-            userId,
-            userMessage,
-        };
+  function generateUserId() {
+    return Math.random().toString(36).substr(2, 9);
+  }
 
-        // Display user's message immediately
-        appendMessage("user", userMessage);
+  sendButton.addEventListener("click", sendMessage);
 
-        try {
-            const response = await fetch("https://server-luffy.onrender.com/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(messageData),
-            });
-
-            if (!response.ok) throw new Error("Failed to send message");
-
-            const { botResponse } = await response.json();
-            appendMessage("bot", botResponse);
-        } catch (error) {
-            appendMessage("bot", "An error occurred. Please try again.");
-        }
+  userMessageInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
     }
-
-    function appendMessage(sender, text) {
-        const messageElement = document.createElement("div");
-        messageElement.className = sender === "user" ? "user-message" : "bot-message";
-        messageElement.textContent = text;
-        chatOutput.appendChild(messageElement);
-        chatOutput.scrollTop = chatOutput.scrollHeight;
-    }
-
-    function generateUserId() {
-        return Math.random().toString(36).substr(2, 9);
-    }
-
-    sendButton.addEventListener("click", sendMessage);
-    userMessageInput.addEventListener("keypress", (event) => {
-        if (event.key === "Enter") sendMessage();
-    });
+  });
 });
