@@ -14,23 +14,59 @@
             background-position: center;
             background-attachment: fixed;
         }
+        /* Surprise Me Button Styles */
+.surprise-button {
+    background-color: #ff8c00; /* Bright orange for a fun look */
+    color: white; 
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.surprise-button:hover {
+    background-color: #e07c00; /* Slightly darker orange on hover */
+    transform: scale(1.1); /* Subtle zoom effect */
+}
+
+.surprise-button:active {
+    background-color: #cc6f00; /* Even darker orange when clicked */
+    transform: scale(0.95); /* Press-down effect */
+}
+
+/* Button Container Styling */
+.button-container {
+    display: flex;
+    gap: 10px; /* Space between the buttons */
+    justify-content: center; /* Center align the buttons */
+    margin-top: 10px;
+}
+
     </style>
 </head>
-...
-
+<body>
+    <div class="container">
+        <header>
+            <h1>Welcome to Luffy's Chat App</h1>
+        </header>
         <main>
             <div id="chatWindow" class="chat-window">
                 <div id="chatOutput" class="chat-output"></div>
             </div>
             <textarea id="userMessage" placeholder="Type your message here..." class="message-box"></textarea>
-            <button id="sendButton" class="send-button">Send</button>
+            <div class="button-container">
+                <button id="sendButton" class="send-button">Send</button>
+                <button id="surpriseButton" class="surprise-button">Surprise Me</button>
+            </div>
         </main>
-
         <footer>
             <p>© 2024 Luffy Chat App. All Rights Reserved.</p>
         </footer>
     </div>
-
     <script src="index.js"></script>
 </body>
 </html>
